@@ -8,7 +8,7 @@ The goal of this project is to automate several tasks involved with Q&A during w
 
 By using open source tools such as phantomjs, casperjs and the potential to connect to a BrowserStack API this tool aims to create a semi-automatic workflow in ensuring your code changes do not affect rendering.  
 
-# To DO
+# Todo
 
 1. Implement a better URL checking method.
 2. Streamline folder creation.
