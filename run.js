@@ -1,9 +1,9 @@
-const prompt  = require('prompt');
-const fs      = require('fs');
-const path    = require('path');
-const dir     = process.cwd() + path.sep + 'screenshots'
+const prompt = require('prompt');
+const fs = require('fs');
+const path = require('path');
+const dir = process.cwd() + path.sep + 'screenshots'
 const crawler = require('easycrawler');
-const colors  = require('colors');
+const colors = require('colors');
 const webshot = require('node-webshot');
 
 
@@ -15,31 +15,38 @@ const webshot = require('node-webshot');
  *
  */
 
-if (!fs.existsSync(dir)) {
+var deleteFolderRecursive = function(path) {
+  if(fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function(file, index) {
+      var curPath = path + "/" + file;
+      if(fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};
+
+deleteFolderRecursive(dir);
+
+if(!fs.existsSync(dir)) {
   fs.mkdirSync(dir);
-} else {
-  fs.readdir(dir, (err, files) => {
-    if (err) throw err;
-    for (var file of files) {
-      fs.unlink(path.join(dir, file), err => {
-        if (err) throw err;
-      });
-    }
-  });
 }
 
 /* Console colors */
 
 colors.setTheme({
-  input:   'grey',
+  input: 'grey',
   verbose: 'cyan',
-  prompt:  'grey',
+  prompt: 'grey',
   success: 'green',
-  data:    'magenta',
-  help:    'cyan',
-  warn:    'yellow',
-  debug:   'blue',
-  error:   'red'
+  data: 'magenta',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red'
 });
 
 /* Prompt Vars */
@@ -74,54 +81,52 @@ var webshotOptions = {
   // }
 };
 
-function generateScreenshots(baseUrl, linkList, callback) {
+function extractHostname(url) {
+  var hostname;
+  //find & remove protocol (http, ftp, etc.) and get hostname
 
-  function extractHostname(url) {
-    var hostname;
-    //find & remove protocol (http, ftp, etc.) and get hostname
-
-    if (url.indexOf("://") > -1) {
-      hostname = url.split('/')[2];
-    } else {
-      hostname = url.split('/')[0];
-    }
-
-    //find & remove port number
-    hostname = hostname.split(':')[0];
-    //find & remove "?"
-    hostname = hostname.split('?')[0];
-
-    return hostname;
+  if(url.indexOf("://") > -1) {
+    hostname = url.split('/')[2];
+  } else {
+    hostname = url.split('/')[0];
   }
 
-  function nameFile(link, breakpoint) {
-    var name;
-    if (link === '') {
-      name = 'home';
-    } else {
-      name = link;
-    }
-    return screensFolder + path.sep + name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
-  }
+  //find & remove port number
+  hostname = hostname.split(':')[0];
+  //find & remove "?"
+  hostname = hostname.split('?')[0];
 
-  var baseSite      = extractHostname(baseUrl);
+  return hostname;
+}
+
+function nameFile(link, breakpoint) {
+  var name;
+  if(link === '') {
+    name = 'home';
+  } else {
+    name = link;
+  }
+  return screensFolder + path.sep + name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
+}
+
+function generateScreenshots(baseUrl, linkList, ) {
+
+  var baseSite = extractHostname(baseUrl);
   var screensFolder = dir + path.sep + baseSite;
 
-  if (!fs.existsSync(screensFolder)) {
+  if(!fs.existsSync(screensFolder)) {
     fs.mkdirSync(screensFolder);
   }
 
   linkList.forEach(function(link) {
     webshot(link, nameFile(link), webshotOptions, function(err) {
-      if (err) {
+      if(err) {
         console.log(err);
       } else {
         console.log('[ PNG SAVED ] => '.success + nameFile(link));
       }
     });
   });
-
-  callback();
 
 }
 
@@ -142,25 +147,25 @@ function crawlSite(site) {
     onFinished: function(urls) {
       console.log("\n" + "== [ END OF SPIDER ] ==".verbose + "\n");
 
-      var crawledUrls    = urls.crawled.toString().split(',');
+      var crawledUrls = urls.crawled.toString().split(',');
       var discoveredUrls = urls.discovered.toString().split(',');
 
       discoveredUrls = discoveredUrls.filter(function(item, pos) {
         return discoveredUrls.indexOf(item) == pos;
       })
 
-      for (var i = 0; i < discoveredUrls.length; i++) {
+      for(var i = 0; i < discoveredUrls.length; i++) {
         console.log("[ DISCOVERED ] => ".data + discoveredUrls[i]);
       }
       console.log("\n" + " == [ END OF DISCOVERED ] ==".data + "\n");
 
-      for (var i = 0; i < crawledUrls.length; i++) {
+      for(var i = 0; i < crawledUrls.length; i++) {
         console.log("[ CRAWLED ] => ".success + crawledUrls[i]);
       }
       console.log("\n" + " == [ END OF CRAWL ] ==".success + "\n");
 
       generateScreenshots(site, crawledUrls, function() {
-      	console.log('finished screenshot generation');
+        console.log('finished screenshot generation');
       });
     }
   });
@@ -171,7 +176,10 @@ function crawlSite(site) {
 prompt.start();
 
 prompt.get(promptSchema, function(err, result) {
-  for (var site in promptSchema.properties) {
+  for(var site in promptSchema.properties) {
+    if(!fs.existsSync(dir + path.sep + site)) {
+      fs.mkdirSync(dir + path.sep + site);
+    }
     crawlSite(result[site]);
   }
 });
