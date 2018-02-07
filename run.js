@@ -81,25 +81,21 @@ var webshotOptions = {
   // }
 };
 
-function extractHostname(url) {
-  var hostname;
-  //find & remove protocol (http, ftp, etc.) and get hostname
-
-  if(url.indexOf("://") > -1) {
-    hostname = url.split('/')[2];
-  } else {
-    hostname = url.split('/')[0];
+function parseUrl(href) {
+  var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+  return match && {
+    href: href,
+    protocol: match[1],
+    host: match[2],
+    hostname: match[3],
+    port: match[4],
+    pathname: match[5],
+    search: match[6],
+    hash: match[7]
   }
-
-  //find & remove port number
-  hostname = hostname.split(':')[0];
-  //find & remove "?"
-  hostname = hostname.split('?')[0];
-
-  return hostname;
 }
 
-function nameFile(link, breakpoint) {
+function nameFile(link) {
   var name;
   if(link === '') {
     name = 'home';
@@ -177,9 +173,6 @@ prompt.start();
 
 prompt.get(promptSchema, function(err, result) {
   for(var site in promptSchema.properties) {
-    if(!fs.existsSync(dir + path.sep + site)) {
-      fs.mkdirSync(dir + path.sep + site);
-    }
-    crawlSite(result[site]);
+
   }
 });
