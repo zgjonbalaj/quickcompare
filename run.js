@@ -1,56 +1,24 @@
-const prompt = require('prompt');
-const fs = require('fs');
-const path = require('path');
-const dir = process.cwd() + path.sep + 'screenshots'
-const crawler = require('easycrawler');
-const colors = require('colors');
-const webshot = require('node-webshot');
-
-
-/**
- *
- * Checking for directories, any exisiting files
- * if not create directory if exists remove all
- * files from any previous run.
- *
- */
-
-var deleteFolderRecursive = function(path) {
-  if(fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index) {
-      var curPath = path + "/" + file;
-      if(fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-};
-
-deleteFolderRecursive(dir);
-
-if(!fs.existsSync(dir)) {
-  fs.mkdirSync(dir);
-}
+global.__basedir = __dirname;
+const prompt     = require('prompt');
+const crawler    = require('easycrawler');
+const colors     = require('colors');
+const webshot    = require('node-webshot');
+const fileSys    = require('./lib/file-system/file-system.js');
 
 /* Console colors */
-
 colors.setTheme({
-  input: 'grey',
+  input:   'grey',
   verbose: 'cyan',
-  prompt: 'grey',
+  prompt:  'grey',
   success: 'green',
-  data: 'magenta',
-  help: 'cyan',
-  warn: 'yellow',
-  debug: 'blue',
-  error: 'red'
+  data:    'magenta',
+  help:    'cyan',
+  warn:    'yellow',
+  debug:   'blue',
+  error:   'red'
 });
 
 /* Prompt Vars */
-
 var promptSchema = {
   properties: {
     devSite: {
@@ -69,7 +37,6 @@ var promptSchema = {
 };
 
 /* Webshot configuration */
-
 var webshotOptions = {
   screenSize: {
     width: 1920,
