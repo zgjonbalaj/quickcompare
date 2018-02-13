@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Automatic Image Comparison",
   "main": "run.js",
-  "scripts": {
-    
-  },
+  "scripts": {},
   "author": "Zgjim Gjonbalaj",
   "license": "ISC",
   "dependencies": {
