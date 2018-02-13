@@ -4,13 +4,11 @@
   "description": "Automatic Image Comparison",
   "main": "run.js",
   "scripts": {
-    "test": "capserjs",
-    "task": "casperjs run.js"
+    
   },
   "author": "Zgjim Gjonbalaj",
   "license": "ISC",
   "dependencies": {
-    "colors": "^1.1.2",
     "easycrawler": "^1.0.1",
     "node-webshot": "^1.0.2",
     "phantomjs": "^2.1.7",
