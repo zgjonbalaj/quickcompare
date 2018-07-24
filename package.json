@@ -7,8 +7,6 @@
   "author": "Zgjim Gjonbalaj",
   "license": "ISC",
   "dependencies": {
-    "browserstack": "^1.5.1",
-    "browserstack-local": "^1.3.3",
     "easycrawler": "^1.0.1",
     "node-webshot": "^1.0.3",
     "phantomjs": "^2.1.7",
